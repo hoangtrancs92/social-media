@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-x0vz$h7w@)rv!g0xtjmk7&8t4cr7j#(-n%)dpg5nsw3&c(e*y9'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production! Show BUG on GUI
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -37,6 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'post.apps.PostConfig',
+    'userApp.apps.UserappConfig',
+    'django.contrib.staticfiles',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -74,13 +79,16 @@ WSGI_APPLICATION = 'socialmedia.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    'default': {    
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'social_media_network_db',
+        'USER':'root',
+        'PASSWORD':'123456',
+        'HOST':'' #Mặc định là localhost
     }
 }
 
-
+AUTH_USER_MODEL = 'userApp.CustomUser'
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -121,3 +129,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 
+    'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 2,
+}
