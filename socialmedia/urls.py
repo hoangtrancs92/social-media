@@ -24,7 +24,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Social Media API",
         default_version='v1',
-        description="Documention API",
+        description="Documentation API",
         contact=openapi.Contact(email="1954112073sang@ou.edu.vn"),
         license=openapi.License(name="Phạm Thanh Sang@2023"),
     ),
@@ -35,6 +35,7 @@ schema_view = get_schema_view(
 # Nơi nhận request endpoints
 urlpatterns = [
     path('api/',include('post.urls')),
+    path('api/users/',include('userApp.urls')),
     path('admin/', admin.site.urls),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',
             schema_view.without_ui(cache_timeout=0),

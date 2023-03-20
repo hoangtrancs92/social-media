@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'post.apps.PostConfig',
     'userApp.apps.UserappConfig',
-    'django.contrib.staticfiles',
-    'drf_yasg'
+    'drf_yasg',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -130,7 +130,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 
-    'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 2,
+'DEFAULT_AUTHENTICATION_CLASSES': [
+'rest_framework.authentication.BasicAuthentication',
+'rest_framework.authentication.TokenAuthentication'
+]
 }

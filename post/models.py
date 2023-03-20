@@ -40,5 +40,5 @@ class Discussion(BaseModel):
         
 class Notification(BaseModel):
     isReaded = models.BooleanField(default=False)
-    discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE, related_name='norification')
+    discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE, related_name='notification')
     

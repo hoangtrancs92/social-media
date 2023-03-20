@@ -15,17 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from . import views
+from .views import *
 from rest_framework import routers
 
+
 router = routers.DefaultRouter()
-router.register('tags',views.TagViewSet)
+router.register('tags',TagViewSet, basename='tags')
+router.register('posts', PostsViewSet, basename='posts')
 # Nơi nhận request endpoints
 urlpatterns = [
     # path('', views.index, name="index"),
     # path('index', views.render, name="render"),
     # path('<int:pk>/', views.details, name="View detail post"), #Xem chi tiet bai post
-    # path('', include('router.urls'))
-    path('posts/', views.PostsList.as_view(), name='post-list'),
-    path('tags/', include(router.urls))
+    # path('', include('router.urls')),
+    path('', include(router.urls)),
 ]

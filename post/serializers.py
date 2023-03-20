@@ -1,11 +1,25 @@
 from rest_framework.serializers import ModelSerializer
 from .models import *
+from rest_framework import serializers
 
 class PostSerializer(ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['id','title','link','user']
+
+class ImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField(source='image')
+
+    def get_image(self, course):
+        if course.image:
+            request = self.context.get('request')
+            return request.build_absolute_uri('/static/%s' % course.image.name) if request else ''
 class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
         fields = ['name']
+class PostDetailSerializer(PostSerializer):
+    tags = TagSerializer(many=True)
+    class Meta: 
+        model = PostSerializer.Meta.model
+        fields = PostSerializer.Meta.fields + ['description', 'tags']
