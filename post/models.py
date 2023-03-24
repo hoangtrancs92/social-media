@@ -32,6 +32,7 @@ class Tag(BaseModel):
     
 # Create Discussion Model
 class Discussion(BaseModel):
+    parent_id = models.IntegerField(blank=True, null=True)
     type = models.SmallIntegerField()
     content = models.TextField(blank=True, null=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='discussions')

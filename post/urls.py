@@ -22,6 +22,7 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 router.register('tags',TagViewSet, basename='tags')
 router.register('posts', PostsViewSet, basename='posts')
+router.register('discussions', DiscussionViewSet, basename='discussions')
 # Nơi nhận request endpoints
 urlpatterns = [
     # path('', views.index, name="index"),

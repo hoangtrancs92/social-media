@@ -23,3 +23,14 @@ class PostDetailSerializer(PostSerializer):
     class Meta: 
         model = PostSerializer.Meta.model
         fields = PostSerializer.Meta.fields + ['description', 'tags']
+
+class DiscussionSerializer(serializers.ModelSerializer):
+    # Khai báo khóa ngoại
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), source='post', write_only=True)
+    class Meta:
+        model = Discussion
+        fields = ['id', 'parent_id', 'type', 'content','post_id']
+    def validate_content(self, value):
+        if value is None:
+            raise serializers.ValidationError("Content cannot be null!")
+        return value

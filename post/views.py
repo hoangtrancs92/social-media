@@ -7,6 +7,7 @@ from rest_framework import viewsets, permissions, generics, status
 from .serializers import *
 from rest_framework.authtoken.models import Token
 from userApp.views import UserDetailAPIView
+from rest_framework.decorators import action
 
 
 # Create your views here
@@ -57,7 +58,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             tagAdded, isCreate = Tag.objects.get_or_create(name=tag['name'])
             post.tags.add(tagAdded)
             
-        
+        # Tạo link
         post.link = f"{request.build_absolute_uri('/')[:-1]}/api/posts/{post.id}"
         post.save()
         serializer = self.get_serializer(post)
@@ -94,7 +95,15 @@ class PostsViewSet(viewsets.ModelViewSet):
                     return Response("The Post id deleted success.", status= status.HTTP_200_OK)
             return Response({'error':"The user don't allow delete post"}, status=status.HTTP_403_FORBIDDEN)
         except Post.DoesNotExist:
-            return Response({'error':"The Post is not found with id:  {}".format(id)}, status=status.HTTP_404_NOT_FOUND)  
+            return Response({'error':"The Post is not found with id:  {}".format(id)}, status=status.HTTP_404_NOT_FOUND) 
+    
+    # detail=True-> áp dụng 1 post cụ thể, api/posts/{if}/method_name. detail=False api/posts/method_name
+    @action(detail = True, methods=['get'])
+    def discussions(self, request, pk = None): # pk là một tham số tùy số cho biết id của đối tượng cụ thể
+         post = self.get_object()
+         discussions = Discussion.objects.filter(post=post)
+         serializer = DiscussionSerializer(discussions,many=True)
+         return Response(serializer.data)
 class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
@@ -121,3 +130,29 @@ class TagViewSet(viewsets.ModelViewSet):
             return [permissions.IsAdminUser()]
         return super().get_permissions()
         
+class DiscussionViewSet(viewsets.ModelViewSet):
+    queryset = Discussion.objects.all()
+    serializer_class = DiscussionSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        discussion_children = Discussion.objects.filter(parent_id=instance.id)
+        while discussion_children.exists():
+            discussion_children.delete()
+            discussion_children = Discussion.objects.filter(parent_id=instance.id)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
