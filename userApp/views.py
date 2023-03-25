@@ -7,7 +7,8 @@ from rest_framework import generics
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import *
-
+from django.core.mail import EmailMultiAlternatives
+from socialmedia import constant
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         try:
@@ -27,6 +28,7 @@ class RegisterAPIView(generics.CreateAPIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = CustomUser.objects.create_user(**serializer.validated_data)
+            send_email_register_success(user.email,user.username)
             return Response({'status': 'success', 'message': 'The user %s register successfully' %(user.username)}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -59,4 +61,20 @@ class UserDetailAPIView(generics.RetrieveAPIView):
             raise AuthenticationFailed({'error': 'User not authenticated'})
 
 
-
+def send_email_register_success(emailTo, username):
+    title = 'Thanks for Registering for the Social Media'
+    body = '''<p>Dear <b>{username}</b>,</p>
+    <p>Thanks for register for Social Media! We are looking forward to seeing you there and sharing our inbound marketing with you.</p>
+    <p>Best,</p>
+    Social Media Team
+    '''.format(username = username)
+    email_to = emailTo
+    send_mail(constant.EMAIL_FROM,email_to,body,title)
+def send_mail(emailFrom,emailTo,bodyStr,title):
+    subject = title
+    from_email = emailFrom
+    to_email = emailTo
+    body = bodyStr
+    msg = EmailMultiAlternatives(subject,body,from_email,[to_email])  
+    msg.attach_alternative(body, "text/html") # Set html
+    msg.send()

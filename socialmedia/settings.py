@@ -138,3 +138,10 @@ REST_FRAMEWORK = {
 'rest_framework.authentication.TokenAuthentication'
 ]
 }
+# Confif EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '1954112073sang@ou.edu.vn'
+EMAIL_HOST_PASSWORD = 'lamgihoi2'
