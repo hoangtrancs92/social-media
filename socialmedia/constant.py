@@ -1,1 +1,4 @@
-EMAIL_FROM = '1954112073sang@gmail.com'
+EMAIL_FROM = 'mrsteve.bang@gmail.com'
+STATUS_PENDING = 'PENDING'
+STATUS_WON = 'WIN'
+STATUS_DEFEAT = 'LOSE'

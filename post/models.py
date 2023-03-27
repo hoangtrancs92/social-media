@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from userApp.models import CustomUser
-
+from socialmedia.constant import STATUS_PENDING
 class BaseModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True) #Tự động lấy thời điển hiện tại để thêm vào
     modified_date = models.DateTimeField(auto_now=True) # Khi có sự cập nhật sẽ tự động update lại
@@ -42,4 +42,10 @@ class Discussion(BaseModel):
 class Notification(BaseModel):
     isReaded = models.BooleanField(default=False)
     discussion = models.ForeignKey(Discussion, on_delete=models.CASCADE, related_name='notification')
-    
+
+class AuctionHistory(BaseModel):
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='author')
+    user_id = models.IntegerField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='posts')
+    price = models.BigIntegerField()
+    status = models.CharField(max_length=20, default=STATUS_PENDING)

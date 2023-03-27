@@ -34,3 +34,8 @@ class DiscussionSerializer(serializers.ModelSerializer):
         if value is None:
             raise serializers.ValidationError("Content cannot be null!")
         return value
+
+class AuctionHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        models = AuctionHistory
+        fields = '__all__'
