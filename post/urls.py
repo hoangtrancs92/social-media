@@ -23,6 +23,8 @@ router = routers.DefaultRouter()
 router.register('tags',TagViewSet, basename='tags')
 router.register('posts', PostsViewSet, basename='posts')
 router.register('discussions', DiscussionViewSet, basename='discussions')
+router.register('auction-histories', AuctionHistoryViewSet, basename='auction_histories')
+
 # Nơi nhận request endpoints
 urlpatterns = [
     # path('', views.index, name="index"),
@@ -30,4 +32,6 @@ urlpatterns = [
     # path('<int:pk>/', views.details, name="View detail post"), #Xem chi tiet bai post
     # path('', include('router.urls')),
     path('', include(router.urls)),
+    
+
 ]

@@ -36,6 +36,7 @@ class DiscussionSerializer(serializers.ModelSerializer):
         return value
 
 class AuctionHistorySerializer(serializers.ModelSerializer):
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), source='post', write_only=True)
     class Meta:
-        models = AuctionHistory
-        fields = '__all__'
+        model = AuctionHistory
+        fields = ['author','user_id','post_id','price','status']

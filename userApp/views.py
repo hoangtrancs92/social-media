@@ -1,4 +1,4 @@
-from rest_framework import status, authentication, generics, permissions
+from rest_framework import status, authentication, generics, permissions, parsers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import CustomUser
@@ -28,7 +28,7 @@ class RegisterAPIView(generics.CreateAPIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = CustomUser.objects.create_user(**serializer.validated_data)
-            send_email_register_success(user.email,user.username)
+            # send_email_register_success(user.email,user.username)
             return Response({'status': 'success', 'message': 'The user %s register successfully' %(user.username)}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

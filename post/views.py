@@ -4,32 +4,15 @@ from rest_framework.response import Response
 from .models import *
 from django.core import serializers
 from rest_framework import viewsets, permissions, generics, status
+from rest_framework.views import APIView
 from .serializers import *
 from rest_framework.authtoken.models import Token
 from userApp.views import UserDetailAPIView
 from rest_framework.decorators import action
 
-
 # Create your views here
-# Dung HAM VIEW.
-#Mọi view đều có tham số đầu tiên là request
-def index(request):
-    q = request.GET.get('q', '')# ?q=abcd
-    return HttpResponse("The param Search is: {}".format(q))
-    # return HttpResponse("Hello world")
-def render(request):
-    return render(request, template_name='index.html', context={
-        'name':'Sang'
-    })
+
     
-
-
-def details(request,pk):
-    try:
-        postModel = Post.objects.get(pk=pk)
-        return JsonResponse(serializers.serialize('json', postModel), content_type="application/json")
-    except Post.DoesNotExist:
-        return HttpResponse("The param pk is: {}".format(pk))   
 
 # Dung CLASS VIEW.
 class PostsViewSet(viewsets.ModelViewSet):
@@ -40,7 +23,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action != 'list':
             return PostDetailSerializer
-        return PostSerializer
+        return PostDetailSerializer
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAuthenticated()] # yêu cầu xác thực để thực hiện các hành động này
@@ -104,6 +87,14 @@ class PostsViewSet(viewsets.ModelViewSet):
          discussions = Discussion.objects.filter(post=post)
          serializer = DiscussionSerializer(discussions,many=True)
          return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'],url_path='auction-histories')
+    def auction_history(self, request, pk = None):
+        post = self.get_object()
+        auction_histories = AuctionHistory.objects.filter(post=post)
+        serializer = AuctionHistorySerializer(auction_histories,many=True)
+        return Response(serializer.data)
+
 class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
@@ -156,3 +147,66 @@ class DiscussionViewSet(viewsets.ModelViewSet):
             discussion_children = Discussion.objects.filter(parent_id=instance.id)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class AuctionHistoryViewSet(viewsets.ModelViewSet):
+    serializer_class = AuctionHistorySerializer
+    queryset = AuctionHistory.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return super().get_permissions()
+    
+    def create(self, request, *args, **kwargs):
+        data = request.data 
+
+        try:
+            user_id = data['user_id']
+            user = CustomUser.objects.get(pk=user_id)
+
+            author_id = data['author']
+            author = CustomUser.objects.get(pk=user_id)
+
+            post_id = data['post_id']
+            post = Post.objects.get(pk=post_id)
+           
+            auctionSaved = AuctionHistory.objects.create(author=author,post=post,user_id=user_id,price=data['price']) 
+            return Response({'message':'The auction history created.'}, status=status.HTTP_201_CREATED)
+        except Post.DoesNotExist:
+            return Response({'message':'The post not found.'},status=status.HTTP_404_NOT_FOUND)
+        except CustomUser.DoesNotExist:
+            return Response({'message':'The user not found.'},status=status.HTTP_404_NOT_FOUND)
+
+class AuctionHistoryViewSets(APIView):
+    serializer_class = AuctionHistorySerializer
+    queryset = AuctionHistory.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated()]
+        return super().get_permissions()
+
+
+    def create(self, request, *args, **kwargs):
+        data = request.data 
+
+        try:
+            user_id = data['user_id']
+            user = CustomUser.objects.get(pk=user_id)
+
+            author_id = data['author']
+            author = CustomUser.objects.get(pk=user_id)
+
+            post_id = data['post_id']
+            post = Post.objects.get(pk=post_id)
+           
+            auctionSaved = AuctionHistory.objects.create(author=author,post=post,user_id=user_id,price=data['price']) 
+            return Response({'message':'The auction history created.'}, status=status.HTTP_201_CREATED)
+        except Post.DoesNotExist:
+            return Response({'message':'The post not found.'},status=status.HTTP_404_NOT_FOUND)
+        except CustomUser.DoesNotExist:
+            return Response({'message':'The user not found.'},status=status.HTTP_404_NOT_FOUND)
+
+   

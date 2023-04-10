@@ -25,7 +25,6 @@ SECRET_KEY = 'django-insecure-x0vz$h7w@)rv!g0xtjmk7&8t4cr7j#(-n%)dpg5nsw3&c(e*y9
 # SECURITY WARNING: don't run with debug turned on in production! Show BUG on GUI
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -101,6 +100,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 6, # Password min 6
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -108,6 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    
 ]
 # Allow All Origin
 CORS_ORIGIN_ALLOW_ALL = True
@@ -121,6 +124,9 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+
+MEDIA_ROOT = '%s/media/' % BASE_DIR
 
 
 # Static files (CSS, JavaScript, Images)

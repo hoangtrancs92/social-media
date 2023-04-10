@@ -46,6 +46,12 @@ class Notification(BaseModel):
 class AuctionHistory(BaseModel):
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='author')
     user_id = models.IntegerField()
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='posts')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='auction_histories')
     price = models.BigIntegerField()
     status = models.CharField(max_length=20, default=STATUS_PENDING)
+
+class Report(BaseModel):
+    report_text = models.TextField()
+    reporter = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    reported_post = models.ForeignKey(Post, on_delete=models.CASCADE)
+   
