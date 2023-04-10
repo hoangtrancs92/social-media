@@ -40,3 +40,7 @@ class AuctionHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = AuctionHistory
         fields = ['author','user_id','post_id','price','status']
+
+class FileSerializer(serializers.Serializer):
+    file = serializers.ImageField()
+    

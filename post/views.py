@@ -9,6 +9,7 @@ from .serializers import *
 from rest_framework.authtoken.models import Token
 from userApp.views import UserDetailAPIView
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
 
 # Create your views here
 
@@ -27,7 +28,14 @@ class PostsViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAuthenticated()] # yêu cầu xác thực để thực hiện các hành động này
-        return super().get_permissions()
+        return super.get_permissions()
+    
+    def list(self, request):
+        if request.user.is_authenticated:
+            queryset = self.get_queryset().filter(status=True).exclude(user=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         data = request.data
         post = Post.objects.create(
@@ -80,6 +88,14 @@ class PostsViewSet(viewsets.ModelViewSet):
         except Post.DoesNotExist:
             return Response({'error':"The Post is not found with id:  {}".format(id)}, status=status.HTTP_404_NOT_FOUND) 
     
+    
+    @action(detail=False, methods=['get'], url_path='(?P<user_id>[^/.]+)')
+    def get_post_by_user_current(self, request, user_id=None):
+        user = CustomUser.objects.get(pk=user_id)
+        queryset = self.get_queryset().filter(user=user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     # detail=True-> áp dụng 1 post cụ thể, api/posts/{if}/method_name. detail=False api/posts/method_name
     @action(detail = True, methods=['get'])
     def discussions(self, request, pk = None): # pk là một tham số tùy số cho biết id của đối tượng cụ thể
@@ -208,5 +224,17 @@ class AuctionHistoryViewSets(APIView):
             return Response({'message':'The post not found.'},status=status.HTTP_404_NOT_FOUND)
         except CustomUser.DoesNotExist:
             return Response({'message':'The user not found.'},status=status.HTTP_404_NOT_FOUND)
+
+class FileUploadView(APIView):
+    parser_classes = (MultiPartParser,)
+    serializer_class = FileSerializer
+
+    def post(self, request, format=None):
+        serializer = FileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
    

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -126,7 +127,10 @@ USE_I18N = True
 USE_TZ = True
 
 
-MEDIA_ROOT = '%s/media/' % BASE_DIR
+# MEDIA_ROOT = '%s/media/' % BASE_DIR
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -146,6 +150,15 @@ REST_FRAMEWORK = {
 'DEFAULT_PAGINATION_CLASS': 
 'rest_framework.pagination.PageNumberPagination',
 'PAGE_SIZE': 30,
+'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
 }
 # Config EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

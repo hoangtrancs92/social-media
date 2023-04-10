@@ -32,6 +32,7 @@ urlpatterns = [
     # path('<int:pk>/', views.details, name="View detail post"), #Xem chi tiet bai post
     # path('', include('router.urls')),
     path('', include(router.urls)),
+    path('upload/', FileUploadView.as_view(), name='file-upload'),
     
 
 ]
