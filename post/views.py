@@ -28,7 +28,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAuthenticated()] # yêu cầu xác thực để thực hiện các hành động này
-        return super.get_permissions()
+        return super().get_permissions()
     
     def list(self, request):
         if request.user.is_authenticated:
@@ -225,16 +225,23 @@ class AuctionHistoryViewSets(APIView):
         except CustomUser.DoesNotExist:
             return Response({'message':'The user not found.'},status=status.HTTP_404_NOT_FOUND)
 
-class FileUploadView(APIView):
-    parser_classes = (MultiPartParser,)
-    serializer_class = FileSerializer
-
+class FileUploadView(generics.GenericAPIView):
+    # def post(self, request):
+    #     try:
+    #         file = request.data['file']
+    #         if file.content_type == 'image/png' or file.content_type == 'image/jpeg':
+    #             file_name = upload_file(file)
+    #             return Response({"name": file_name}, status=status.HTTP_202_ACCEPTED)
+    #         else:
+    #             raise UnsupportedMediaType(file.content_type)
+    #     except KeyError:
+    #         return Response("file missing.", status=status.HTTP_404_NOT_FOUND)
     def post(self, request, format=None):
-        serializer = FileSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        file_obj = request.FILES['file']
+        with open('media/' + file_obj.name, 'wb+') as destination:
+            for chunk in file_obj.chunks():
+                destination.write(chunk)
+        file_path = 'api/media/' + file_obj.name
+        return Response({'status': 'success','path':file_path})
 
    

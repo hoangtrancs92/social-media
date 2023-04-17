@@ -9,6 +9,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import *
 from django.core.mail import EmailMultiAlternatives
 from socialmedia import constant
+
+from django.http import FileResponse, Http404
+from django.conf import settings
+import os
+
+
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         try:
@@ -78,3 +84,15 @@ def send_mail(emailFrom,emailTo,bodyStr,title):
     msg = EmailMultiAlternatives(subject,body,from_email,[to_email])  
     msg.attach_alternative(body, "text/html") # Set html
     msg.send()
+
+# THIS API TO GET IMAGE CONTENT
+def get_avatar(request, filename):
+    # Construct the file path for the requested avatar
+    file_path = os.path.join(settings.MEDIA_ROOT, filename)
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        raise Http404
+    # Open the file in binary mode and return a FileResponse object
+    file = open(file_path, 'rb')
+    response = FileResponse(file, content_type='image/png')
+    return response
