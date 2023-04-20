@@ -13,25 +13,30 @@ from socialmedia import constant
 from django.http import FileResponse, Http404
 from django.conf import settings
 import os
+from oauth2_provider.views import TokenView
+from oauth2_provider.models import AccessToken
 
 
-class CustomAuthToken(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        try:
-            serializer = self.serializer_class(data=request.data, context={'request': request})
-            serializer.is_valid(raise_exception=True)
-            user = serializer.validated_data['user']
-            # Create or get token for user
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'username': user.username, 'id': user.id})
-        except Exception as e:
-            return Response({'error': 'User or password is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
+
+# class CustomAuthToken(ObtainAuthToken):
+#     def post(self, request, *args, **kwargs):
+#         try:
+#             serializer = self.serializer_class(data=request.data, context={'request': request})
+#             serializer.is_valid(raise_exception=True)
+#             user = serializer.validated_data['user']
+#             # Create or get token for user
+#             token, created = Token.objects.get_or_create(user=user)
+#             return Response({'token': token.key, 'username': user.username, 'id': user.id})
+#         except Exception as e:
+#             return Response({'error': 'User or password is incorrect!'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class RegisterAPIView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     def post(self, request):
         serializer = UserSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             user = CustomUser.objects.create_user(**serializer.validated_data)
             # send_email_register_success(user.email,user.username)

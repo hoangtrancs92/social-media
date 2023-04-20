@@ -7,12 +7,10 @@ from django.contrib.auth.password_validation import validate_password
 
 class UserSerializer(serializers.ModelSerializer):
    
-    image = serializers.SerializerMethodField(source='avatar')
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'password','first_name','last_name','avatar','image')
+        fields = ('username', 'email', 'password','first_name','last_name','avatar')
         extra_kwargs = {
-            'avatar': {'write_only': 'True'},
             'password': {'write_only': 'True'}
         }
 
