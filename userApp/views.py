@@ -90,6 +90,16 @@ def send_mail(emailFrom,emailTo,bodyStr,title):
     msg.attach_alternative(body, "text/html") # Set html
     msg.send()
 
+def sen_email_report(report_text, username):
+    title = 'Report'
+    body = '''<p>Dear Admin,</p>
+    <p>The user {username} has been report with content: <i>{report_text}</i></p>
+    <p>Best,</p>
+    Social Media Team
+    '''.format(username = username, report_text = report_text)
+    msg = EmailMultiAlternatives(title,body,constant.EMAIL_FROM,[constant.EMAIL_FROM])  
+    msg.attach_alternative(body, "text/html") # Set html
+    msg.send()
 # THIS API TO GET IMAGE CONTENT
 def get_avatar(request, filename):
     # Construct the file path for the requested avatar

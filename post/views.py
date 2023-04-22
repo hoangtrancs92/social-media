@@ -7,7 +7,7 @@ from rest_framework import viewsets, permissions, generics, status
 from rest_framework.views import APIView
 from .serializers import *
 from rest_framework.authtoken.models import Token
-from userApp.views import UserDetailAPIView
+from userApp.views import UserDetailAPIView, sen_email_report
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from django.db.models import Max
@@ -234,17 +234,23 @@ class AuctionHistoryViewSets(APIView):
         except CustomUser.DoesNotExist:
             return Response({'message':'The user not found.'},status=status.HTTP_404_NOT_FOUND)
 
+class ReportCreateView(generics.CreateAPIView):
+    serializer_class = ReportSerializer
+    def post(self, request, *args, **kwargs):
+        data = request.data 
+        try:
+            user = CustomUser.objects.get(pk=data['reporter'])
+            post = Post.objects.get(pk=data['post_id'])
+            report_text = data['report_text']
+            report_saved = Report.objects.create(report_text= report_text, reporter=user, report_type=data['report_type'], reported_post=post)
+            # Send Email Report
+            sen_email_report(report_text, user.username)
+            return Response({'message':'The report has been sent successfully.'}, status=status.HTTP_201_CREATED)
+        except Post.DoesNotExist:
+            return Response({'message':'The post not found.'},status=status.HTTP_404_NOT_FOUND)
+        except CustomUser.DoesNotExist:
+            return Response({'message':'The user not found.'},status=status.HTTP_404_NOT_FOUND)
 class FileUploadView(generics.GenericAPIView):
-    # def post(self, request):
-    #     try:
-    #         file = request.data['file']
-    #         if file.content_type == 'image/png' or file.content_type == 'image/jpeg':
-    #             file_name = upload_file(file)
-    #             return Response({"name": file_name}, status=status.HTTP_202_ACCEPTED)
-    #         else:
-    #             raise UnsupportedMediaType(file.content_type)
-    #     except KeyError:
-    #         return Response("file missing.", status=status.HTTP_404_NOT_FOUND)
     def post(self, request, format=None):
         file_obj = request.FILES['file']
         with open('media/' + file_obj.name, 'wb+') as destination:

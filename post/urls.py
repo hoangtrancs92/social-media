@@ -25,6 +25,7 @@ router.register('posts', PostsViewSet, basename='posts')
 router.register('discussions', DiscussionViewSet, basename='discussions')
 router.register('auction-histories', AuctionHistoryViewSet, basename='auction_histories')
 
+
 # Nơi nhận request endpoints
 urlpatterns = [
     # path('', views.index, name="index"),
@@ -32,6 +33,7 @@ urlpatterns = [
     # path('<int:pk>/', views.details, name="View detail post"), #Xem chi tiet bai post
     # path('', include('router.urls')),
     path('', include(router.urls)),
+    path('report/', ReportCreateView.as_view(), name='report'),
     path('upload/', FileUploadView.as_view(), name='file-upload'),
     path('media/<str:filename>/', get_avatar, name='get_avatar'),
 

@@ -46,7 +46,7 @@ class ReportSerializer(serializers.ModelSerializer):
     reporter = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), source='user', write_only=True)
     class Meta:
         model = Report
-        fields = ['report_text','user_id','reporter','report_type']
+        fields = ['report_text','reporter','report_type','post_id']
 
 class FileSerializer(serializers.Serializer):
     file = serializers.ImageField()
