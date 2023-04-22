@@ -92,12 +92,12 @@ class PostsViewSet(viewsets.ModelViewSet):
             return Response({'error':"The Post is not found with id:  {}".format(id)}, status=status.HTTP_404_NOT_FOUND) 
     
     
-    @action(detail=False, methods=['get'], url_path='(?P<user_id>[^/.]+)')
-    def get_post_by_user_current(self, request, user_id=None):
-        user = CustomUser.objects.get(pk=user_id)
-        queryset = self.get_queryset().filter(user=user)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    # @action(detail=False, methods=['get'], url_path='(my-post/?P<user_id>[^/.]+)')
+    # def get_post_by_user_current(self, request, user_id=None):
+    #     user = CustomUser.objects.get(pk=user_id)
+    #     queryset = self.get_queryset().filter(user=user)
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     return Response(serializer.data)
 
     # detail=True-> áp dụng 1 post cụ thể, api/posts/{if}/method_name. detail=False api/posts/method_name
     @action(detail = True, methods=['get'])
