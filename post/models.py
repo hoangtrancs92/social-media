@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from userApp.models import CustomUser
-from socialmedia.constant import STATUS_PENDING
+from socialmedia.constant import STATUS_PENDING, NOT_STANDARD
 class BaseModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True) #Tự động lấy thời điển hiện tại để thêm vào
     modified_date = models.DateTimeField(auto_now=True) # Khi có sự cập nhật sẽ tự động update lại
@@ -54,4 +54,5 @@ class Report(BaseModel):
     report_text = models.TextField()
     reporter = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     reported_post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    report_type = models.CharField(max_length=20, default=NOT_STANDARD)
    

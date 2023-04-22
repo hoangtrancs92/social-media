@@ -41,6 +41,13 @@ class AuctionHistorySerializer(serializers.ModelSerializer):
         model = AuctionHistory
         fields = ['author','user_id','post_id','price','status']
 
+class ReportSerializer(serializers.ModelSerializer):
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), source='post', write_only=True)
+    reporter = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), source='user', write_only=True)
+    class Meta:
+        model = Report
+        fields = ['report_text','user_id','reporter','report_type']
+
 class FileSerializer(serializers.Serializer):
     file = serializers.ImageField()
     

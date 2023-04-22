@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 from userApp.views import UserDetailAPIView
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
+from django.db.models import Max
 
 # Create your views here
 
@@ -33,6 +34,8 @@ class PostsViewSet(viewsets.ModelViewSet):
     def list(self, request):
         if request.user.is_authenticated:
             queryset = self.get_queryset().filter(status=True).exclude(user=request.user)
+        else:
+            queryset = self.get_queryset().filter(status=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -186,8 +189,14 @@ class AuctionHistoryViewSet(viewsets.ModelViewSet):
 
             post_id = data['post_id']
             post = Post.objects.get(pk=post_id)
+
+            
+            price = data['price']
+            max_price_post_auction = post.auction_histories.aggregate(Max('price'))['price__max']
+            if price < max_price_post_auction:
+                return Response({'message':'The price must be greater than {}.'.format(max_price_post_auction)}, status=status.HTTP_400_BAD_REQUEST)
            
-            auctionSaved = AuctionHistory.objects.create(author=author,post=post,user_id=user_id,price=data['price']) 
+            # auctionSaved = AuctionHistory.objects.create(author=author,post=post,user_id=user_id,price) 
             return Response({'message':'The auction history created.'}, status=status.HTTP_201_CREATED)
         except Post.DoesNotExist:
             return Response({'message':'The post not found.'},status=status.HTTP_404_NOT_FOUND)
@@ -218,7 +227,7 @@ class AuctionHistoryViewSets(APIView):
             post_id = data['post_id']
             post = Post.objects.get(pk=post_id)
            
-            auctionSaved = AuctionHistory.objects.create(author=author,post=post,user_id=user_id,price=data['price']) 
+            # auctionSaved = AuctionHistory.objects.create(author=author,post=post,user_id=user_id,price=data['price']) 
             return Response({'message':'The auction history created.'}, status=status.HTTP_201_CREATED)
         except Post.DoesNotExist:
             return Response({'message':'The post not found.'},status=status.HTTP_404_NOT_FOUND)

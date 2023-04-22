@@ -173,7 +173,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'mrsteve.bang@gmail.com'
-EMAIL_HOST_PASSWORD = 'uizrynoclxdglbvr'
+EMAIL_HOST_PASSWORD = 'tgehfdtoovywjlaq'
 
 #Setting JWT
 SIMPLE_JWT = {
