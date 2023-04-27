@@ -23,6 +23,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from userApp.views import get_avatar
 schema_view = get_schema_view(
     openapi.Info(
         title="Social Media API",
@@ -43,6 +44,7 @@ urlpatterns = [
     # path('oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('media/<str:filename>/', get_avatar, name='get_avatar'),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$',
             schema_view.without_ui(cache_timeout=0),
             name='schema-json'),

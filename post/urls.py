@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import *
 from rest_framework import routers
-from userApp.views import get_avatar
 
 router = routers.DefaultRouter()
 router.register('tags',TagViewSet, basename='tags')
@@ -35,6 +34,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('report/', ReportCreateView.as_view(), name='report'),
     path('upload/', FileUploadView.as_view(), name='file-upload'),
-    path('media/<str:filename>/', get_avatar, name='get_avatar'),
 
 ]
