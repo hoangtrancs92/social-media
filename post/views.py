@@ -11,6 +11,9 @@ from userApp.views import UserDetailAPIView, sen_email_report
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from django.db.models import Max
+from django.db.models import Count
+from datetime import datetime, timedelta
+from django.db.models import Q
 
 # Create your views here
 
@@ -113,6 +116,7 @@ class PostsViewSet(viewsets.ModelViewSet):
         auction_histories = AuctionHistory.objects.filter(post=post)
         serializer = AuctionHistorySerializer(auction_histories,many=True)
         return Response(serializer.data)
+        
 
 class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
@@ -259,4 +263,19 @@ class FileUploadView(generics.GenericAPIView):
         file_path = 'api/media/' + file_obj.name
         return Response({'status': 'success','path':file_path})
 
-   
+
+# Statistics API
+class PostStatisticsView(generics.RetrieveAPIView):
+        def get(self, request, month,year):
+
+            print(month)
+            # month = self.kwargs.get('month')
+            today = datetime.today()
+            print(today)
+            # month_start = today.replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+            # if month == 12:
+            #     month_end = month_start.replace(year=month_start.year+1, month=1) - timedelta(days=1)
+            # else:
+            #     month_end = month_start.replace(month=month+1) - timedelta(days=1)
+            post_count = Post.objects.filter(Q(created_date__month=month) & Q(created_date__year=year)).aggregate(count=Count('id'))['count']
+            return Response({'result':post_count}, status=status.HTTP_200_OK)

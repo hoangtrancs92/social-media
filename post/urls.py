@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from .views import *
 from rest_framework import routers
 
@@ -34,5 +34,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('report/', ReportCreateView.as_view(), name='report'),
     path('upload/', FileUploadView.as_view(), name='file-upload'),
+    re_path('statistics/posts/count/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', PostStatisticsView.as_view(), name='count-post-by-month-number')
 
 ]
