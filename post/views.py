@@ -5,6 +5,7 @@ from .models import *
 from django.core import serializers
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.views import APIView
+from socialmedia.constant import TYPE_COMMENT, TYPE_LIKE
 from .serializers import *
 from rest_framework.authtoken.models import Token
 from userApp.views import UserDetailAPIView, sen_email_report
@@ -14,7 +15,6 @@ from django.db.models import Max
 from django.db.models import Count
 from datetime import datetime, timedelta
 from django.db.models import Q
-
 # Create your views here
 
     
@@ -107,9 +107,14 @@ class PostsViewSet(viewsets.ModelViewSet):
     def discussions(self, request, pk = None): # pk là một tham số tùy số cho biết id của đối tượng cụ thể
          post = self.get_object()
          discussions = Discussion.objects.filter(post=post)
-         serializer = DiscussionSerializer(discussions,many=True)
+         serializer = DiscussionSerializerRetrieve(discussions,many=True)
          return Response(serializer.data)
-    
+    @action(detail = True, methods=['get'])
+    def likes_discussions_counter(self, request, pk = None): # pk là một tham số tùy số cho biết id của đối tượng cụ thể
+        post = self.get_object()
+        count_comments = Discussion.objects.filter(post=post, type = TYPE_COMMENT).count() # Count Comment
+        count_likes = Discussion.objects.filter(post=post, type =TYPE_LIKE ).count() # Count Comment
+        return Response({'comment_number': count_comments, 'like_number':count_likes}, status=status.HTTP_200_OK)
     @action(detail=True, methods=['get'],url_path='auction-histories')
     def auction_history(self, request, pk = None):
         post = self.get_object()
@@ -148,6 +153,10 @@ class DiscussionViewSet(viewsets.ModelViewSet):
     queryset = Discussion.objects.all()
     serializer_class = DiscussionSerializer
 
+    def get_serializer(self):
+        if self.action in ['list','retrieve']:
+            return DiscussionSerializerRetrieve(many=True)
+        return self.serializer_class
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -267,15 +276,6 @@ class FileUploadView(generics.GenericAPIView):
 # Statistics API
 class PostStatisticsView(generics.RetrieveAPIView):
         def get(self, request, month,year):
-
-            print(month)
-            # month = self.kwargs.get('month')
             today = datetime.today()
-            print(today)
-            # month_start = today.replace(month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
-            # if month == 12:
-            #     month_end = month_start.replace(year=month_start.year+1, month=1) - timedelta(days=1)
-            # else:
-            #     month_end = month_start.replace(month=month+1) - timedelta(days=1)
             post_count = Post.objects.filter(Q(created_date__month=month) & Q(created_date__year=year)).aggregate(count=Count('id'))['count']
             return Response({'result':post_count}, status=status.HTTP_200_OK)

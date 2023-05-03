@@ -17,6 +17,7 @@ class Post(BaseModel):
     link = models.CharField(null=False, max_length=255, blank=True)
     user = models.ForeignKey(CustomUser, on_delete= models.CASCADE) #Khi xóa user thì các bài post xóa hết
     tags = models.ManyToManyField('Tag',related_name='posts', null=True,blank=True) # Cho phep null, blank
+    urlImages = models.TextField(null=True,blank=True) # Save the images of the post, example: http:localhost:8080/image1,http:localhost:8080/image2
     def __str__(self):
         return self.title
     
@@ -33,9 +34,10 @@ class Tag(BaseModel):
 # Create Discussion Model
 class Discussion(BaseModel):
     parent_id = models.IntegerField(blank=True, null=True)
-    type = models.SmallIntegerField()
+    type = models.SmallIntegerField() # Type bằng 1 là comment, type = 0 là thể hiện nút like.
     content = models.TextField(blank=True, null=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='discussions')
+    user = models.ForeignKey(CustomUser, on_delete= models.CASCADE, default=1) #Khi xóa user thì các bài post xóa hết
     class Meta:
         ordering = ['-created_date'] # '-'->DESC
         

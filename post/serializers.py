@@ -1,11 +1,12 @@
 from rest_framework.serializers import ModelSerializer
 from .models import *
 from rest_framework import serializers
+from userApp.serializer import UserSerializer
 
 class PostSerializer(ModelSerializer):
     class Meta:
         model = Post
-        fields = ['id','title','link','user']
+        fields = ['id','title','link','user','urlImages']
 
 class ImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField(source='image')
@@ -27,14 +28,23 @@ class PostDetailSerializer(PostSerializer):
 class DiscussionSerializer(serializers.ModelSerializer):
     # Khai báo khóa ngoại
     post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), source='post', write_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), source='user', write_only=True)
     class Meta:
         model = Discussion
-        fields = ['id', 'parent_id', 'type', 'content','post_id']
+        fields = ['id', 'parent_id', 'type', 'content','post_id','user_id']
     def validate_content(self, value):
         if value is None:
             raise serializers.ValidationError("Content cannot be null!")
         return value
+    label = 'Discussion'  # define the label attribute
 
+class DiscussionSerializerRetrieve(serializers.ModelSerializer):
+    # Khai báo khóa ngoại
+    post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), source='post', write_only=True)
+    user = UserSerializer()
+    class Meta:
+        model = Discussion
+        fields = ['id', 'parent_id', 'type', 'content','post_id','user','created_date','modified_date']
 class AuctionHistorySerializer(serializers.ModelSerializer):
     post_id = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), source='post', write_only=True)
     class Meta:
