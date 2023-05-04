@@ -137,6 +137,12 @@ class TagViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated()]
         return super().get_permissions()
     
+    @action(detail = False, methods=['get'], url_path='(?P<name>[^/.]+)/posts', url_name='Get posts by the tag name')
+    def posts(self, request, name=None):
+        
+        posts = Post.objects.filter(tags__name__icontains=name)
+        serializer = PostSerializer(posts,many=True)
+        return Response({'data':serializer.data}, status=status.HTTP_200_OK)
     def create(self, request, *args, **kwargs):
         name = request.data.get('name',None)
         if name: 
@@ -146,12 +152,13 @@ class TagViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data, status= status.HTTP_201_CREATED)
             serializer = self.get_serializer(tag)
             return Response(serializer.data, status= status.HTTP_200_OK)
-        return Response({'error': 'name is required'}, status=400)
+        return Response({'error': 'The name is required'}, status=400)
     # Chỉ cho admin xóa
     def get_permissions(self):
         if self.action == 'destroy':
             return [permissions.IsAdminUser()]
         return super().get_permissions()
+
         
 class DiscussionViewSet(viewsets.ModelViewSet):
     queryset = Discussion.objects.all()
