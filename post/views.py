@@ -46,7 +46,7 @@ class PostsViewSet(viewsets.ModelViewSet):
         data = request.data
         post = Post.objects.create(
             title = data['title'],
-            user = UserDetailAPIView.get_current_User(self,request),
+            user = CustomUser.objects.get(pk=data['user']),
             description = data['description'],
             status = True,
         )
@@ -152,11 +152,6 @@ class TagViewSet(viewsets.ModelViewSet):
 class DiscussionViewSet(viewsets.ModelViewSet):
     queryset = Discussion.objects.all()
     serializer_class = DiscussionSerializer
-
-    def get_serializer(self):
-        if self.action in ['list','retrieve']:
-            return DiscussionSerializerRetrieve(many=True)
-        return self.serializer_class
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
