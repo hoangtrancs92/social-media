@@ -43,23 +43,27 @@ class PostsViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        data = request.data
-        post = Post.objects.create(
+        try: 
+            data = request.data
+            user =  CustomUser.objects.get(pk=data['user'])
+            post = Post.objects.create(
             title = data['title'],
-            user = CustomUser.objects.get(pk=data['user']),
+            user = user,
             description = data['description'],
             status = True,
-        )
-        tags = data['tags']
-        for tag in tags:
-            tagAdded, isCreate = Tag.objects.get_or_create(name=tag['name'])
-            post.tags.add(tagAdded)
+            )
+            tags = data['tags']
+            for tag in tags:
+                tagAdded, isCreate = Tag.objects.get_or_create(name=tag['name'])
+                post.tags.add(tagAdded)
             
-        # Tạo link
-        post.link = f"{request.build_absolute_uri('/')[:-1]}/api/posts/{post.id}"
-        post.save()
-        serializer = self.get_serializer(post)
-        return Response(serializer.data, status= status.HTTP_201_CREATED)
+            # Tạo link
+            post.link = f"{request.build_absolute_uri('/')[:-1]}/api/posts/{post.id}"
+            post.save()
+            serializer = self.get_serializer(post)
+            return Response(serializer.data, status= status.HTTP_201_CREATED)
+        except CustomUser.DoesNotExist: 
+            return Response({'error':"The Post is not found with id:  {}".format(data['user'])}, status=status.HTTP_404_NOT_FOUND)  
     def update(self, request, *args, **kwargs):
         try:
             id = self.kwargs['pk']
