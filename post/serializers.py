@@ -60,4 +60,3 @@ class ReportSerializer(serializers.ModelSerializer):
 
 class FileSerializer(serializers.Serializer):
     file = serializers.ImageField()
-    
