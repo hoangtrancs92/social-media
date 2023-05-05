@@ -55,6 +55,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             user = user,
             description = data['description'],
             status = True,
+            urlImages=data['urlImages']
             )
             tags = data['tags']
             for tag in tags:
