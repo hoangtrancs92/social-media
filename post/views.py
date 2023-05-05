@@ -35,13 +35,17 @@ class PostsViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
     
     def list(self, request):
-        if request.user.is_authenticated:
-            queryset = self.get_queryset().filter(status=True).exclude(user=request.user)
+        userId = request.query_params.get('userId')
+        if userId is not None:
+            user = CustomUser.objects.get(pk=userId)
+            queryset = self.get_queryset().filter(status=True, user=user)
         else:
-            queryset = self.get_queryset().filter(status=True)
+            if request.user.is_authenticated:
+                queryset = self.get_queryset().filter(status=True).exclude(user=request.user)
+            else:
+                queryset = self.get_queryset().filter(status=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
     def create(self, request, *args, **kwargs):
         try: 
             data = request.data
