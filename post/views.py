@@ -15,6 +15,9 @@ from django.db.models import Max
 from django.db.models import Count
 from datetime import datetime, timedelta
 from django.db.models import Q
+from urllib.parse import quote
+from rest_framework.parsers import MultiPartParser, FormParser
+import datetime
 # Create your views here
 
     
@@ -275,12 +278,21 @@ class ReportCreateView(generics.CreateAPIView):
         except CustomUser.DoesNotExist:
             return Response({'message':'The user not found.'},status=status.HTTP_404_NOT_FOUND)
 class FileUploadView(generics.GenericAPIView):
+    serializer_class = FileSerializer
+    parser_classes = [MultiPartParser, FormParser]
     def post(self, request, format=None):
         file_obj = request.FILES['file']
-        with open('media/' + file_obj.name, 'wb+') as destination:
+        # Time name format 
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        #Get extension
+        extension = file_obj.name.split('.')[-1]
+        #Replace file
+        new_filename = f"{timestamp}.{extension}"
+        # Write file
+        with open('media/' + new_filename, 'wb+') as destination:
             for chunk in file_obj.chunks():
                 destination.write(chunk)
-        file_path = 'api/media/' + file_obj.name
+        file_path = 'media/' + new_filename
         return Response({'status': 'success','path':file_path})
 
 
