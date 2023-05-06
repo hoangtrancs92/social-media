@@ -30,7 +30,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     
     def get_serializer_class(self):
         if self.action != 'list':
-            return PostDetailSerializer
+            return PostSerializer
         return PostDetailSerializer
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -47,7 +47,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                 queryset = self.get_queryset().filter(status=True).exclude(user=request.user)
             else:
                 queryset = self.get_queryset().filter(status=True)
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = PostRetrieveSerializer(queryset, many=True)
         return Response(serializer.data)
     def create(self, request, *args, **kwargs):
         try: 

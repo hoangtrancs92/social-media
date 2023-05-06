@@ -9,6 +9,11 @@ class PostSerializer(ModelSerializer):
         fields = ['id','title','link','user','urlImages']
 
 
+class PostRetrieveSerializer(ModelSerializer):
+    user = UserSerializer()
+    class Meta:
+        model = Post
+        fields = ['id','title','link','user','urlImages']
 class ImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField(source='image')
 
