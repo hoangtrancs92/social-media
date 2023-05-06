@@ -2,7 +2,7 @@ from rest_framework import status, authentication, generics, permissions, parser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import CustomUser
-from .serializer import UserSerializer
+from .serializer import UserSerializer, UserRetrieveSerializer
 from rest_framework import generics
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -53,6 +53,23 @@ class UserDetailAPIView(generics.RetrieveAPIView):
     def get_object(self):
         user = self.request.user
         return user
+class GetUserByIdAPIView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_url_kwarg = 'id'
+    def get(self, request, *args, **kwargs):
+        idUser = self.kwargs.get(self.lookup_url_kwarg)
+        # retrieve the user object based on the ID
+        try:
+            user = CustomUser.objects.get(pk=idUser)
+            serializer = UserRetrieveSerializer(user, many=False)
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({'error':'The user not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class UserEditAPIView(generics.UpdateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]

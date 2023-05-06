@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(required=False)
     def get_avatar(self, obj):
         avatar_url = obj.avatar.url
-        api_media_prefix = 'api/media/'
+        api_media_prefix = 'media/'
         print(avatar_url)
         return api_media_prefix + avatar_url + '/'
     class Meta:
@@ -62,3 +62,14 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+class UserRetrieveSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email','first_name','last_name','avatar']
+    def get_avatar(self, obj):
+        avatar_url = obj.avatar.url
+        api_media_prefix = 'media/'
+        print(avatar_url)
+        return api_media_prefix + avatar_url + '/'

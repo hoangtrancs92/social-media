@@ -8,6 +8,7 @@ class PostSerializer(ModelSerializer):
         model = Post
         fields = ['id','title','link','user','urlImages']
 
+
 class ImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField(source='image')
 
