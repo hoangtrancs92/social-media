@@ -2,7 +2,7 @@ from rest_framework import status, authentication, generics, permissions, parser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import CustomUser
-from .serializer import UserSerializer, UserRetrieveSerializer
+from .serializer import UserSerializer, UserRetrieveSerializer, ChangePasswordSerializer
 from rest_framework import generics
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -13,12 +13,15 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import FileResponse, Http404
 from django.conf import settings
 import os
+import re
 from oauth2_provider.views import TokenView
 from oauth2_provider.models import AccessToken
-
+from django.contrib.auth import authenticate, update_session_auth_hash
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 
 class RegisterAPIView(generics.CreateAPIView):
@@ -80,6 +83,34 @@ class UserEditAPIView(generics.UpdateAPIView):
         return self.request.user
     def perform_update(self, serializer):
         serializer.save(avatar=self.request.data.get('avatar'))
+#API Change Password
+class ChangePasswordView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    serializer_class = ChangePasswordSerializer
+
+    def post(self, request, format=None):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            old_password = serializer.data.get('old_password')
+            new_password = serializer.data.get('new_password')
+            confirm_password = serializer.data.get('confirm_password')
+            user = authenticate(username=request.user.username, password=old_password)
+            if user is not None:
+                if new_password == confirm_password:
+                    if len(new_password) >= 6:
+                        user.set_password(new_password)
+                        user.save()
+                        update_session_auth_hash(request, user)
+                        return Response({'data': 'Change password success'},status=status.HTTP_200_OK)
+                    else:
+                        return Response({'error': 'New Password must be minimum of 6 characters.'}, status=status.HTTP_400_BAD_REQUEST) 
+                else:
+                    return Response({'error': 'New password do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': 'Wrong password.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def send_email_register_success(emailTo, username):
     title = 'Thanks for Registering for the Social Media'

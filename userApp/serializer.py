@@ -73,3 +73,8 @@ class UserRetrieveSerializer(serializers.ModelSerializer):
         api_media_prefix = 'media/'
         print(avatar_url)
         return api_media_prefix + avatar_url + '/'
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
