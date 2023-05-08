@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from socialmedia.constant import TYPE_COMMENT, TYPE_LIKE
 from .serializers import *
 from rest_framework.authtoken.models import Token
-from userApp.views import UserDetailAPIView, sen_email_report
+from userApp.views import UserDetailAPIView, sen_email_report, send_email_notification
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from django.db.models import Max
@@ -118,7 +118,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     @action(detail = True, methods=['get'])
     def discussions(self, request, pk = None): # pk là một tham số tùy số cho biết id của đối tượng cụ thể
          post = self.get_object()
-         discussions = Discussion.objects.filter(post=post)
+         discussions = Discussion.objects.filter(post=post, type=TYPE_COMMENT)
          serializer = DiscussionSerializerRetrieve(discussions,many=True)
          return Response(serializer.data)
     @action(detail = True, methods=['get'])
@@ -144,7 +144,7 @@ class TagViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAuthenticated()]
         return super().get_permissions()
-    
+    # This api is get post by tag
     @action(detail = False, methods=['get'], url_path='(?P<name>[^/.]+)/posts', url_name='Get posts by the tag name')
     def posts(self, request, name=None):
         
@@ -171,10 +171,34 @@ class TagViewSet(viewsets.ModelViewSet):
 class DiscussionViewSet(viewsets.ModelViewSet):
     queryset = Discussion.objects.all()
     serializer_class = DiscussionSerializer
+
+    def get_queryset(self):
+        # Only allow POST, PUT, and DELETE requests
+        allowed_methods = ['POST', 'PUT', 'DELETE']
+        if self.request.method not in allowed_methods:
+            return Discussion.objects.none()
+        return super().get_queryset()
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        self.perform_create(serializer) #Create discussion
+        discussion = serializer.instance
+        print(discussion)
+        # user_id = discussion.user
+        
+        # post_id = serializer.data.get('post_id')
+        type_discussion = serializer.data.get('type')
+        # Get User Create
+        user_client = discussion.user
+        # Get Email of the Post
+        post = discussion.post
+        email = post.user.email
+        
+        # Get Type 
+        type_string = 'Comment' if type_discussion == TYPE_COMMENT else 'Like'
+        # Send notification email
+        send_email_notification(post.user.email, post.user.username, user_client.username, serializer.data.get('content'), type_string, post.link)
         return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
