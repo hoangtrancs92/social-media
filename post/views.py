@@ -172,34 +172,28 @@ class DiscussionViewSet(viewsets.ModelViewSet):
     queryset = Discussion.objects.all()
     serializer_class = DiscussionSerializer
 
-    def get_queryset(self):
-        # Only allow POST, PUT, and DELETE requests
-        allowed_methods = ['POST', 'PUT', 'DELETE']
-        if self.request.method not in allowed_methods:
-            return Discussion.objects.none()
-        return super().get_queryset()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer) #Create discussion
-        discussion = serializer.instance
-        print(discussion)
-        # user_id = discussion.user
-        
-        # post_id = serializer.data.get('post_id')
-        type_discussion = serializer.data.get('type')
-        # Get User Create
-        user_client = discussion.user
-        # Get Email of the Post
-        post = discussion.post
-        email = post.user.email
-        
-        # Get Type 
-        type_string = 'Comment' if type_discussion == TYPE_COMMENT else 'Like'
-        # Send notification email
-        send_email_notification(post.user.email, post.user.username, user_client.username, serializer.data.get('content'), type_string, post.link)
-        return Response(serializer.data)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer) #Create discussion
+            discussion_created = serializer.instance
+
+            type_discussion = serializer.data.get('type')
+            # Get User Create
+            user_client = discussion_created.user
+            # Get Email of the Post
+            post = discussion_created.post
+            email = post.user.email
+            
+            # Get Type 
+            type_string = 'Comment' if type_discussion == TYPE_COMMENT else 'Like'
+            # Send notification email
+            send_email_notification(post.user.email, post.user.username, user_client.username, serializer.data.get('content'), type_string, post.link)
+            return Response(serializer.data)
+        except Exception as e:
+             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)

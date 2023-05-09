@@ -142,16 +142,17 @@ def sen_email_report(report_text, username):
     msg.send()
 #This function is used to send the notification.
 def send_email_notification(email_to,username_author,username_client,content,type_discussion, link_post):
-    title = 'Notification'
-    body = '''<p>Dear {username_author},</p>
-    <p>The user <b>{username_client}</b> has been {type_discussion} on your post at <a href={link_post}>Link</a> with content: <i>{content}</i></p>
-    <p>Best,</p>
-    Social Media Team
-    '''.format(username_author = username_author, username_client = username_client,
-                type_discussion = type_discussion, link_post = link_post, content= content)
-    msg = EmailMultiAlternatives(title,body,constant.EMAIL_FROM,[email_to])  
-    msg.attach_alternative(body, "text/html") # Set html
-    msg.send()
+    if email_to is not None: 
+        title = 'Notification'
+        body = '''<p>Dear {username_author},</p>
+        <p>The user <b>{username_client}</b> has been {type_discussion} on your post at <a href={link_post}>Link</a> with content: <i>{content}</i></p>
+        <p>Best,</p>
+        Social Media Team
+        '''.format(username_author = username_author, username_client = username_client,
+                    type_discussion = type_discussion, link_post = link_post, content= content)
+        msg = EmailMultiAlternatives(title,body,constant.EMAIL_FROM,[email_to])  
+        msg.attach_alternative(body, "text/html") # Set html
+        msg.send()
     # THIS API TO GET IMAGE CONTENT
 def get_avatar(request, filename):
     # Construct the file path for the requested avatar
